@@ -1,7 +1,10 @@
 const gamepadAPI = {
     controller: {},
     turbo: false,
-    connect () { },
+    connect (event) {
+        controller = event.gamepad;
+        console.log('Gamepad connected:', this.controller.id);
+    },
     disconnect () { },
     update () {
         if(controller) {
@@ -172,7 +175,6 @@ let controller;
 
 
 function preload () {
-
     alertLeft = loadSound('assets/left.mp3');
     alertRight = loadSound('assets/right.mp3');
 
@@ -262,6 +264,7 @@ function setup () {
 
     if(navigator.getGamepads().length > 0) {
         controllers = navigator.getGamepads();
+        controller = controllers[0];
         if(controller) {
             console.log(controller.id);
         }
@@ -272,6 +275,9 @@ function setup () {
         console.log(navigator.getGamepads());
 
     }
+
+    const gamepadConnectedEvent = new Event('gamepadconnected');
+    gamepadAPI.connect(gamepadConnectedEvent);
 }
 
 function windowResized () {
@@ -502,8 +508,8 @@ function instructMenu2 () {
     ingame = false;
     image(x52, (windowWidth - x52.width) / 2, 20);
     textSize(27);
-    text("Engine", ((windowWidth - x52.width) / 2) + 160, windowHeight - (windowHeight - 30));
-    text("Fuel", ((windowWidth - x52.width) / 2) + 340, windowHeight - (windowHeight - 125));
+    text("Fuel", ((windowWidth - x52.width) / 2) + 200, windowHeight - (windowHeight - 30));
+    text("Engine", ((windowWidth - x52.width) / 2) + 360, windowHeight - (windowHeight - 125));
 
     textAlign(LEFT);
     textSize(15);
@@ -544,20 +550,20 @@ You cannot play Emergency Mode without an X52 H.O.T.A.S throttle or similar cont
     textAlign(RIGHT);
     text("Fire Emergency", windowWidth - 10, windowHeight - (windowHeight - 75));
     textSize(20);
-    text("- Engine: 0", windowWidth - 10, windowHeight - (windowHeight - 100));
-    text("- Fuel: 0", windowWidth - 10, windowHeight - (windowHeight - 125));
+    text("- Fuel: 100", windowWidth - 10, windowHeight - (windowHeight - 100));
+    text("- Engine: 0", windowWidth - 10, windowHeight - (windowHeight - 125));
     textSize(25);
 
     text("Engine Emergency", windowWidth - 10, windowHeight - (windowHeight - 175));
     textSize(20);
-    text("- Engine: 100", windowWidth - 10, windowHeight - (windowHeight - 200));
-    text("- Fuel: 100", windowWidth - 10, windowHeight - (windowHeight - 225));
+    text("- Fuel: 0", windowWidth - 10, windowHeight - (windowHeight - 200));
+    text("- Engine: 100", windowWidth - 10, windowHeight - (windowHeight - 225));
     textSize(25);
 
     text("Propeller Emergency", windowWidth - 10, windowHeight - (windowHeight - 275));
     textSize(20);
-    text("- Engine: 0", windowWidth - 10, windowHeight - (windowHeight - 300));
-    text("- Fuel: 100", windowWidth - 10, windowHeight - (windowHeight - 325));
+    text("- Fuel: 50", windowWidth - 10, windowHeight - (windowHeight - 300));
+    text("- Engine: 100", windowWidth - 10, windowHeight - (windowHeight - 325));
     textSize(25);
 
 
@@ -1054,19 +1060,13 @@ function playGame () {
         menuSound.setVolume(0);
     }
 
-    gamepadAPI.update();
-
-    if(doEmergency) {
-
-
-    }
 
     gamepadAPI.update();
 
 
     if(doEmergency) {
-        let engineKnob = controller.axes[4];
-        let fuelKnob = controller.axes[3];
+        let engineKnob = controller.axes[3];
+        let fuelKnob = controller.axes[4];
         engineValue = Math.round((engineKnob - (-1)) * (100 - 0) / (1 - (-1)));
         regularValue = Math.floor((fuelKnob - (-1)) * (26 - 0) / (0.99 - (-1)));
 
@@ -1090,17 +1090,17 @@ function playGame () {
             fire: {
                 sound: alertFire,
                 engine: 0,
-                fuel: 0
+                fuel: 100
             },
             engine: {
                 sound: alertEngine,
                 engine: 100,
-                fuel: 100
+                fuel: 0
             },
             propeller: {
                 sound: alertPropeller,
-                engine: 0,
-                fuel: 100
+                engine: 100,
+                fuel: 50
             }
 
         };
@@ -1307,6 +1307,7 @@ function playGame () {
                         if(expectedInput === currentInput) {
                             clearInterval(cueTimerUpdater);
                             hitCues++;
+                            expectedInput = enums.input.NONE;
                             cueTimer = 0;
                         }
                     }
@@ -1317,7 +1318,7 @@ function playGame () {
                         clearInterval(cueTimerUpdater); // Stop the interval
                         cueTimer = 0;
                         if(expectedInput != enums.input.NONE) {
-                            missedCues++;
+                            //missedCues++;
                         }
                     }
                 }, 16);
