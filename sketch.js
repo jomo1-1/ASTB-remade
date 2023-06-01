@@ -349,8 +349,8 @@ function startMenu () {
 
 
     if(controller) {
-        let engineKnob = controller.axes[4];
-        let fuelKnob = controller.axes[3];
+        let engineKnob = controller.axes[3];
+        let fuelKnob = controller.axes[4];
         engineValue = Math.round((engineKnob - (-1)) * (100 - 0) / (1 - (-1)));
         regularValue = Math.floor((fuelKnob - (-1)) * (26 - 0) / (0.99 - (-1)));
 
@@ -367,8 +367,9 @@ function startMenu () {
         textSize(40);
         stroke('#013993');
         fill('#e4ac00');
-        text(`Engine: ${engineValue}`, 20, y1);
-        text(`Fuel: ${fuelValue}`, textWidth("Engine:100") + 70, y1);
+        text(`Fuel: ${fuelValue}`, 20, y1);
+        text(`Engine: ${engineValue}`, textWidth("Engine:100") + 70, y1);
+
 
 
 
@@ -1114,8 +1115,8 @@ function playGame () {
         textSize(40);
         stroke('#013993');
         fill('#e4ac00');
-        text(`Engine: ${engineValue}`, 20, y);
-        text(`Fuel: ${fuelValue}`, textWidth("Engine:100") + 70, y);
+        text(`Fuel: ${fuelValue}`, 20, y);
+        text(`Engine: ${engineValue}`, textWidth("Engine:100") + 70, y);
 
 
         function playEmergency (emergencyObject) {
