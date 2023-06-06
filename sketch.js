@@ -1008,6 +1008,10 @@ function mousePressed () {
 function draw () {
     background(0);
 
+    if(doEmergency) {
+        controller = navigator.getGamepads()[0];
+    }
+
     if(getAudioContext().state !== 'running') {
         getAudioContext().resume();
     }
