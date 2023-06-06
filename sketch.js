@@ -164,6 +164,7 @@ let upPressed = false;
 let downPressed = false;
 
 let controller;
+let controllerIndex = 0;
 
 
 function preload () {
@@ -256,7 +257,7 @@ function setup () {
     console.log("Startup");
     console.log(navigator.getGamepads());
 
-    if(navigator.getGamepads()[0] != null) {
+    if(navigator.getGamepads().some(slot => {controllerIndex = slot.index; return item !== null;})) {
         console.log("Gamepads connected: ", navigator.getGamepads().length);
         //controllers = navigator.getGamepads();
         //controller = controllers[0];
@@ -287,7 +288,7 @@ function gamepadCheck () {
     let textX = windowWidth / 2; // Horizontal center of the window
     let textY = 100; // Y position of the text
     let message;
-    if(navigator.getGamepads()[0] == null) {
+    if(navigator.getGamepads().some(slot => {controllerIndex = slot.index; return slot !== null;}) == false) {
         message = `Your gamepad is not detected.
 Connect it now, or, if it's already connected, press any button on the gamepad
 so the GamepadAPI will recognize it.
@@ -297,7 +298,7 @@ Similar controllers may work but it is not guaranteed.`;
     }
     else {
         message = `Gamepad detected!
-You're using '${navigator.getGamepads()[0].id}'`;
+You're using '${navigator.getGamepads()[controllerIndex].id}'`;
     }
     text(message, textX, textY);
 
@@ -422,11 +423,11 @@ function startMenu () {
 
 
         textSize(20);
-        if(navigator.getGamepads()[0] == null) {
+        if(navigator.getGamepads().some(slot => {controllerIndex = slot.index; return slot !== null;}) == false) {
             text(`No gamepad detected`, 20, y1 - 45);
         }
         else {
-            text(`Gamepad: '${navigator.getGamepads()[0].id}'`, 20, y1 - 45);
+            text(`Gamepad: '${navigator.getGamepads()[controllerIndex].id}'`, 20, y1 - 45);
         }
 
     }
@@ -488,7 +489,7 @@ function mouseClicked () {
 
         if(mouseX > buttonX && mouseX < buttonX + buttonWidth) {
             if(mouseY > buttonY && mouseY < buttonY + buttonHeight) {
-                if(navigator.getGamepads()[0] == null) {
+                if(navigator.getGamepads().some(slot => {controllerIndex = slot.index; return slot !== null;}) == false) {
                     doEmergency = enums.FALSE;
                 }
 
@@ -872,7 +873,7 @@ function settingsMenu2 () {
     if(doEmergency == enums.TRUE) {
         audioCues = enums.FALSE;
 
-        if(navigator.getGamepads()[0] == null) {
+        if(navigator.getGamepads().some(slot => {controllerIndex = slot.index; return slot !== null;}) == false) {
             earSwapSlider.remove();
             debugSlider.remove();
             cueIntervalSlider.remove();
@@ -1009,7 +1010,7 @@ function draw () {
     background(0);
 
     if(doEmergency) {
-        controller = navigator.getGamepads()[0];
+        controller = navigator.getGamepads()[controllerIndex];
     }
 
     if(getAudioContext().state !== 'running') {
