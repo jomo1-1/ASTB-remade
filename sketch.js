@@ -1,23 +1,14 @@
-const gamepadAPI = {
-    controller: {},
-    turbo: false,
-    connect (event) {
-        controller = event.gamepad;
-        console.log('Gamepad connected:', this.controller.id);
-    },
-    disconnect () { },
-    update () {
-        if(controller) {
-            controller = navigator.getGamepads()[controller.index];
-        }
-    },
+//Listens for controller connection
+//Controller will register as connected when it is plugged in
+//with the game open, or when some input is registered on the controller
+//The browser GamepadAPI will not detect a gamepad until some action or input is done.
+window.addEventListener("gamepadconnected", (event) => {
+    console.log("A gamepad connected:", event.gamepad.id);
+    console.log(event.gamepad);
+    controller = event.gamepad;
+});
 
-    buttonPressed () { },
-    buttons: [],
-    buttonsCache: [],
-    buttonsStatus: [],
-    axesStatus: [],
-};
+
 
 //enums object assigns names to values used throught the program for easier readability
 const enums = {
@@ -33,7 +24,8 @@ const enums = {
         INSTRUCT_2: 6,
         SETTINGS_1: 3,
         SETTINGS_2: 4,
-        GAME_OVER: 5
+        GAME_OVER: 5,
+        GAMEPAD_CONNECT: 7
     },
     ear: {
         RIGHT: 0,
@@ -261,31 +253,89 @@ function setup () {
     barY = windowHeight - 400;
     throtY = windowHeight - 150;
 
+    console.log("Startup");
+    console.log(navigator.getGamepads());
 
     if(navigator.getGamepads().length > 0) {
-        controllers = navigator.getGamepads();
-        controller = controllers[0];
-        if(controller) {
-            console.log(controller.id);
-        }
+        console.log("Gamepads connected: ", navigator.getGamepads().length);
+        //controllers = navigator.getGamepads();
+        //controller = controllers[0];
+        //if(controller) {
+        //console.log(controller.id);
+        //}
+    }
+    else {
+        console.log("No gamepads detected");
     }
 
-    if(!!navigator.getGamepads()) {
-        console.log("KUUUURRRP");
-        console.log(navigator.getGamepads());
 
-    }
-
-    const gamepadConnectedEvent = new Event('gamepadconnected');
-    gamepadAPI.connect(gamepadConnectedEvent);
 }
 
 function windowResized () {
     resizeCanvas(windowWidth, windowHeight);
 }
 
+function gamepadCheck () {
+    textAlign(CENTER);
+    exitPointerLock();
+    cursor();
+    fill('black');
+    stroke('#013993');
+    strokeWeight(3);
+    fill('#e4ac00');
+    textSize(35);
+    let textX = windowWidth / 2; // Horizontal center of the window
+    let textY = 100; // Y position of the text
+    let message;
+    if(navigator.getGamepads().length == 0) {
+        message = `Your gamepad is not detected.
+Connect it now, or, if it's already connected, press any button on the gamepad
+so the GamepadAPI will recognize it.
+Emergency Mode cannot be enabled until a gamepad is detected.
+Emergency mode is designed to work with the x52 H.O.T.A.S flight controller.
+Similar controllers may work but it is not guaranteed.`;
+    }
+    else {
+        message = `Gamepad detected!
+You're using '${navigator.getGamepads()[0].id}'`;
+    }
+    text(message, textX, textY);
+
+
+
+    fill('black');
+    let rectWidth = 200;
+    let rectHeight = 75;
+    let rectX = windowWidth / 2 - rectWidth / 2;
+    let rectY = windowHeight - 85;
+    rect(rectX, rectY, rectWidth, rectHeight);
+
+    let buttonWidth = 200;
+    let buttonHeight = 75;
+    let buttonX = rectX + (rectWidth / 2) - (buttonWidth / 2);
+    let buttonY = rectY + (rectHeight / 2) - (buttonHeight / 2);
+
+    if(mouseX > buttonX && mouseX < buttonX + buttonWidth) {
+        if(mouseY > buttonY && mouseY < buttonY + buttonHeight) {
+            fill('#e4ac00');
+            rect(rectX, rectY, rectWidth, rectHeight);
+        }
+    }
+
+    fill('#e4ac00');
+    textSize(30);
+    textAlign(CENTER); // Center the text within the rectangle
+    text('Main Menu', rectX + (rectWidth / 2), rectY + (rectHeight / 2));
+
+
+
+
+}
+
+
+
+
 function startMenu () {
-    gamepadAPI.update();
     orderSelected = false;
     firstEmergencyCleared = false;
     secondEmergencyCleared = false;
@@ -371,11 +421,13 @@ function startMenu () {
         text(`Engine: ${engineValue}`, textWidth("Engine:100") + 70, y1);
 
 
-
-
-
-
-
+        textSize(20);
+        if(navigator.getGamepads().length == 0) {
+            text(`No gamepad detected`, 20, y1 - 45);
+        }
+        else {
+            text(`Gamepad: '${navigator.getGamepads()[0].id}'`, 20, y1 - 45);
+        }
 
     }
 
@@ -420,6 +472,27 @@ function mouseClicked () {
         if(mouseX > buttonX && mouseX < buttonX + buttonWidth) {
             if(mouseY > buttonY && mouseY < buttonY + buttonHeight) {
                 menuOption = enums.menu.INSTRUCT_2;
+            }
+        }
+    }
+    if(menuOption == enums.menu.GAMEPAD_CONNECT) {
+        let rectWidth = 200;
+        let rectHeight = 75;
+        let rectX = windowWidth / 2 - rectWidth / 2;
+        let rectY = windowHeight - 85;
+        rect(rectX, rectY, rectWidth, rectHeight);
+        let buttonWidth = 200;
+        let buttonHeight = 75;
+        let buttonX = rectX + (rectWidth / 2) - (buttonWidth / 2);
+        let buttonY = rectY + (rectHeight / 2) - (buttonHeight / 2);
+
+        if(mouseX > buttonX && mouseX < buttonX + buttonWidth) {
+            if(mouseY > buttonY && mouseY < buttonY + buttonHeight) {
+                if(navigator.getGamepads().length == 0) {
+                    doEmergency = enums.FALSE;
+                }
+
+                menuOption = enums.menu.START;
             }
         }
     }
@@ -794,8 +867,24 @@ function settingsMenu2 () {
     reactionTime = reactionTimeSlider.value();
     doEmergency = emergencySlider.value();
 
+
+
     if(doEmergency == enums.TRUE) {
         audioCues = enums.FALSE;
+
+        if(navigator.getGamepads().length == 0) {
+            earSwapSlider.remove();
+            debugSlider.remove();
+            cueIntervalSlider.remove();
+            reactionTimeSlider.remove();
+            emergencySlider.remove();
+            clear();
+            haveInitSetting = 0;
+            menuOption = enums.menu.GAMEPAD_CONNECT;
+
+        }
+
+
     }
 
     fill('#e4ac00');
@@ -917,7 +1006,6 @@ function mousePressed () {
 
 
 function draw () {
-
     background(0);
 
     if(getAudioContext().state !== 'running') {
@@ -952,6 +1040,9 @@ function draw () {
     }
     else if(menuOption == enums.menu.SETTINGS_2) {
         settingsMenu2();
+    }
+    else if(menuOption == enums.menu.GAMEPAD_CONNECT) {
+        gamepadCheck();
     }
 
 }
@@ -1012,11 +1103,7 @@ function runInterval (seconds, func) {
 //PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 //PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 
-window.addEventListener('gamepadconnected', (event) => {
-    controller = event.gamepad;
-    console.log('Gamepad connected:', controller.id);
 
-});
 
 
 
@@ -1062,7 +1149,6 @@ function playGame () {
     }
 
 
-    gamepadAPI.update();
 
 
     if(doEmergency) {
