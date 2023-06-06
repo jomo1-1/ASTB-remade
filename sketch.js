@@ -257,7 +257,7 @@ function setup () {
     console.log("Startup");
     console.log(navigator.getGamepads());
 
-    if(navigator.getGamepads().some(slot => {controllerIndex = slot.index; return slot !== null;})) {
+    if(navigator.getGamepads().some(slot => {if(slot !== null) {controllerIndex = slot.index;} return slot !== null;})) {
         console.log("Gamepads connected: ", navigator.getGamepads().length);
         //controllers = navigator.getGamepads();
         //controller = controllers[0];
@@ -288,7 +288,7 @@ function gamepadCheck () {
     let textX = windowWidth / 2; // Horizontal center of the window
     let textY = 100; // Y position of the text
     let message;
-    if(navigator.getGamepads().some(slot => {controllerIndex = slot.index; return slot !== null;}) == false) {
+    if(navigator.getGamepads().some(slot => {if(slot !== null) {controllerIndex = slot.index;} return slot !== null;}) == false) {
         message = `Your gamepad is not detected.
 Connect it now, or, if it's already connected, press any button on the gamepad
 so the GamepadAPI will recognize it.
@@ -423,7 +423,7 @@ function startMenu () {
 
 
         textSize(20);
-        if(navigator.getGamepads().some(slot => {controllerIndex = slot.index; return slot !== null;}) == false) {
+        if(navigator.getGamepads().some(slot => {if(slot !== null) {controllerIndex = slot.index;} return slot !== null;}) == false) {
             text(`No gamepad detected`, 20, y1 - 45);
         }
         else {
@@ -489,7 +489,7 @@ function mouseClicked () {
 
         if(mouseX > buttonX && mouseX < buttonX + buttonWidth) {
             if(mouseY > buttonY && mouseY < buttonY + buttonHeight) {
-                if(navigator.getGamepads().some(slot => {controllerIndex = slot.index; return slot !== null;}) == false) {
+                if(navigator.getGamepads().some(slot => {if(slot !== null) {controllerIndex = slot.index;} return slot !== null;}) == false) {
                     doEmergency = enums.FALSE;
                 }
 
@@ -873,7 +873,7 @@ function settingsMenu2 () {
     if(doEmergency == enums.TRUE) {
         audioCues = enums.FALSE;
 
-        if(navigator.getGamepads().some(slot => {controllerIndex = slot.index; return slot !== null;}) == false) {
+        if(navigator.getGamepads().some(slot => {if(slot !== null) {controllerIndex = slot.index;} return slot !== null;}) == false) {
             earSwapSlider.remove();
             debugSlider.remove();
             cueIntervalSlider.remove();
