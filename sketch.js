@@ -257,7 +257,7 @@ function setup () {
     console.log("Startup");
     console.log(navigator.getGamepads());
 
-    if(navigator.getGamepads().some(slot => {controllerIndex = slot.index; return item !== null;})) {
+    if(navigator.getGamepads().some(slot => {controllerIndex = slot.index; return slot !== null;})) {
         console.log("Gamepads connected: ", navigator.getGamepads().length);
         //controllers = navigator.getGamepads();
         //controller = controllers[0];
