@@ -402,8 +402,8 @@ function startMenu () {
     if(controller) {
         let engineKnob = controller.axes[3];
         let fuelKnob = controller.axes[4];
-        engineValue = Math.round((engineKnob - (-1)) * (100 - 0) / (1 - (-1)));
-        regularValue = Math.floor((fuelKnob - (-1)) * (26 - 0) / (0.99 - (-1)));
+        engineValue = 100 - Math.round((engineKnob - (-1)) * (100 - 0) / (1 - (-1)));
+        regularValue = 26 - Math.floor((fuelKnob - (-1)) * (26 - 0) / (0.99 - (-1)));
 
         fuelValue = Math.floor((regularValue / 26) * 100);
     }
